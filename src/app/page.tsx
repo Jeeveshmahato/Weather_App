@@ -1,11 +1,17 @@
-"use client";
+"use client"
 import Image from "next/image";
 import DesktopBackground from "../assets/thunderstorm-countryside.jpg";
 import logo from "../assets/logo.svg";
 import cloud from "../assets/Cloudy.png";
 import { useState, useEffect } from "react";
 import { Roboto } from "@next/font/google";
-
+import hightemp from "../assets/temp.png";
+import mintemp from "../assets/Min_temp.png";
+import humadity from "../assets/Humadity.png";
+import cloudyside from "../assets/Cloudy_.png";
+import wind from "../assets/Wind.png";
+import outline from "../assets/outline.png";
+import Search from "../assets/search.png";
 // Load Roboto font with weights
 const roboto = Roboto({
   weight: ["400", "700"], // Regular and Bold
@@ -49,7 +55,7 @@ export default function Home() {
       );
       const data = await response.json();
       setCityName(data?.name);
-      setWeatherData(data?.main);
+      setWeatherData(data);
     } catch (error) {
       console.error(error);
     }
@@ -63,7 +69,7 @@ export default function Home() {
       );
       const data = await response.json();
       setCityName(data?.name);
-      setWeatherData(data?.main);
+      setWeatherData(data);
     } catch (error) {
       console.error(error);
     }
@@ -81,6 +87,69 @@ export default function Home() {
     getLocation();
   }, []);
 
+  // current data and time
+  // Function to add leading zero to single digit numbers
+  const addLeadingZero = (num: number): string =>
+    num < 10 ? `0${num}` : `${num}`;
+
+  const formatDate = (): string => {
+    const daysOfWeek = [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+    ];
+    const monthsOfYear = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
+
+    const currentDate = new Date();
+
+    let hours = currentDate.getHours();
+    const minutes = addLeadingZero(currentDate.getMinutes());
+    const dayName = daysOfWeek[currentDate.getDay()];
+    const day = currentDate.getDate();
+    const monthName = monthsOfYear[currentDate.getMonth()];
+    const year = currentDate.getFullYear().toString().slice(-2); // Get last 2 digits of the year
+
+    // Convert 24-hour time to 12-hour format and determine AM/PM
+    const ampm = hours >= 12 ? "PM" : "AM";
+    hours = hours % 12;
+    hours = hours ? hours : 12; // If hours is 0, set it to 12 (midnight or noon)
+    const formattedHours = addLeadingZero(hours);
+
+    return `${formattedHours}:${minutes} ${ampm} - ${dayName}, ${day} ${monthName} '${year}`;
+  };
+
+  const [currentTime, setCurrentTime] = useState<string>("");
+
+  useEffect(() => {
+    // Set the initial time when component mounts
+    setCurrentTime(formatDate());
+
+    // Update time every minute
+    const timer = setInterval(() => {
+      setCurrentTime(formatDate());
+    }, 60000);
+
+    // Cleanup the timer when the component is unmounted
+    return () => clearInterval(timer);
+  }, []);
+
   return (
     <div
       className={`relative w-screen h-screen bg-cover bg-center flex ${roboto.className}`}
@@ -92,30 +161,53 @@ export default function Home() {
       <div className="absolute top-0 left-0 w-full h-full bg-black opacity-40"></div>
 
       {/* Main weather content */}
-      <div className="relative z-10 flex w-full h-full p-10 text-white justify-between">
+      <div className="relative z-10 flex flex-col lg:flex-row w-full h-full p-10 text-white justify-between">
         {/* Left section: Logo, Temperature, and City Info */}
-        <div className="flex flex-col justify-between h-full w-2/3">
-          <Image
-            className="w-[90px] h-[47px] rounded-full object-cover"
-            src={logo}
-            alt="Weather App Logo"
-          />
-          <div className="flex gap-[10px] items-center">
-            <h1 className="text-[146px] font-[400]">{weatherData ? `${weatherData.temp}°` : "Loading..."}</h1>
-            <div>
-              <div className="text-[60px] font-[400]">{cityName || "Unknown City"}</div>
-              <div className="text-[18px] font-[400]">
-                06:09 - Monday, 9 Sep '23
-              </div>
+        <div className="flex flex-col justify-between h-full md:gap-[200px] gap-[100px] w-full lg:w-2/3">
+          <div className=" flex justify-between">
+            <Image
+              className="w-[90px] h-[47px] rounded-full object-cover"
+              src={logo}
+              alt="Weather App Logo"
+            />
+            {/* Search Bar */}
+            <div className="flex  lg:hidden justify-between items-center border-b border-white pb-4">
+              <input
+                type="text"
+                value={searchCity}
+                onChange={(e) => setSearchCity(e.target.value)}
+                className="bg-transparent w-full placeholder-white text-white focus:outline-none"
+                placeholder="Search Location..."
+              />
+              <Image
+              onClick={searchByCityName}
+              className="material-icons text-white ml-4 w-[28px] h-[28px] cursor-pointer"
+              src={Search}
+              alt="search "
+            />
+      
             </div>
-            <Image src={cloud} alt="cloud" />
+          </div>
+          <div className="flex gap-[10px] items-center  ">
+            <h1 className="text-[60px] md:text-[120px] lg:text-[146px] font-[400]">
+              {weatherData
+                ? `${Math.round(weatherData?.main?.temp - 273)}°`
+                : "Loading..."}
+            </h1>
+            <div>
+              <div className="text-[40px] md:text-[48px] lg:text-[60px] font-[400]">
+                {cityName || "Unknown City"}
+              </div>
+              <div className="text-[10px] md:text-[16px] lg:text-[18px]  font-[400]">{currentTime}</div>
+            </div>
+            <Image className=" w-[40px] h-[40px] md:w-[48px] md:h-[48px] lg:w-[60px] lg:h-[60px]" src={cloud} alt="cloud" />
           </div>
         </div>
 
         {/* Right section: Weather Details */}
-        <div className="w-1/3 bg-white bg-opacity-20 backdrop-blur-md p-8 rounded-lg space-y-6">
+        <div className=" w-full lg:w-1/3 bg-white bg-opacity-20 backdrop-blur-md p-8 rounded-lg space-y-6">
           {/* Search Bar */}
-          <div className="flex justify-between items-center border-b border-white pb-4">
+          <div className="hidden lg:flex  justify-between items-center border-b border-white pb-4">
             <input
               type="text"
               value={searchCity}
@@ -123,60 +215,126 @@ export default function Home() {
               className="bg-transparent w-full placeholder-white text-white focus:outline-none"
               placeholder="Search Location..."
             />
-            <span
+            <Image
               onClick={searchByCityName}
-              className="material-icons text-white ml-4 cursor-pointer"
-            >
-              search
-            </span>
+              className="material-icons text-white ml-4 w-[20px] h-[20px] cursor-pointer"
+              src={Search}
+              alt="search "
+            />
           </div>
 
           {/* Weather Details */}
           <div>
             <h2 className="text-[18px] font-[400]">Weather Details...</h2>
             <p className="text-[18px] font-[500] mt-2">
-              {weatherData ? "THUNDERSTORM WITH LIGHT DRIZZLE" : "Loading..."}
+              {weatherData
+                ? `${weatherData?.weather?.[0]?.description || "NA"}`
+                : "Loading..."}
             </p>
             <div className="flex text-[18px] font-[400] flex-col space-y-3 mt-4">
               <div className="flex justify-between">
                 <span>Temp max</span>
-                <span>{weatherData ? `${weatherData.temp_max}°` : "Loading..."}</span>
+                <div className=" flex items-center gap-[28px]">
+                  <span>
+                    {weatherData
+                      ? `${
+                          Math.round(weatherData?.main?.temp_max - 273) || "NA"
+                        }°`
+                      : "Loading..."}
+                  </span>
+
+                  <Image src={hightemp} alt="" />
+                </div>
               </div>
               <div className="flex justify-between">
                 <span>Temp min</span>
-                <span>{weatherData ? `${weatherData.temp_min}°` : "Loading..."}</span>
+                <div className=" flex items-center gap-[28px]">
+                  <span>
+                    {weatherData
+                      ? `${
+                          Math.round(weatherData?.main?.temp_min - 273) || "NA"
+                        }°`
+                      : "Loading..."}
+                  </span>
+
+                  <Image src={mintemp} alt="" />
+                </div>
               </div>
               <div className="flex justify-between">
                 <span>Humidity</span>
-                <span>{weatherData ? `${weatherData.humidity}%` : "Loading..."}</span>
+                <div className=" flex items-center gap-[28px]">
+                  <span>
+                    {weatherData
+                      ? `${weatherData?.main?.humidity || "NA"}%`
+                      : "Loading..."}
+                  </span>
+
+                  <Image src={humadity} alt="" />
+                </div>
               </div>
               <div className="flex justify-between">
                 <span>Cloudy</span>
-                <span>{weatherData ? `86%` : "Loading..."}</span>
+                <div className=" flex items-center gap-[28px]">
+                  <span>
+                    {weatherData
+                      ? `${weatherData?.clouds?.all || "NA"}%`
+                      : "Loading..."}
+                  </span>
+
+                  <Image src={cloudyside} alt="" />
+                </div>
               </div>
               <div className="flex justify-between">
                 <span>Wind</span>
-                <span>5 km/h</span>
+                <div className=" flex items-center gap-[28px]">
+                  <span>
+                    {weatherData
+                      ? `${weatherData?.wind?.speed || "NA"} Km/h`
+                      : "Loading..."}
+                  </span>
+
+                  <Image src={wind} alt="" />
+                </div>
               </div>
             </div>
           </div>
           <div className="w-full h-[1px] bg-white"></div>
 
           {/* Today's Forecast */}
-          <div className="mt-10">
-            <h2 className="text-[18px] font-[400]">
-              Today's Weather Forecast...
-            </h2>
-            <div className="flex space-x-4 mt-4">
-              <div className="flex flex-col items-center">
-                <span className="text-lg">09:00</span>
-                <span className="text-lg">Snow</span>
-                <span className="text-lg">19°</span>
+          <div className="mt-10 hidden lg:block">
+            <div className="flex text-[18px] font-[400] flex-col space-y-3 mt-4">
+              <div className="flex items-center justify-between">
+                <div className=" flex items-center gap-[28px]">
+                  <Image src={outline} alt="" />
+
+                  <div className=" flex flex-col gap-[4px]">
+                    <p>09:00</p>
+                    <p>Snow</p>
+                  </div>
+                </div>
+                <span>19°</span>
               </div>
-              <div className="flex flex-col items-center">
-                <span className="text-lg">09:00</span>
-                <span className="text-lg">Rain</span>
-                <span className="text-lg">15°</span>
+              <div className="flex items-center justify-between">
+                <div className=" flex items-center gap-[28px]">
+                  <Image src={outline} alt="" />
+
+                  <div className=" flex flex-col gap-[4px]">
+                    <p>09:00</p>
+                    <p>Snow</p>
+                  </div>
+                </div>
+                <span>19°</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className=" flex items-center gap-[28px]">
+                  <Image src={outline} alt="" />
+
+                  <div className=" flex flex-col gap-[4px]">
+                    <p>09:00</p>
+                    <p>Snow</p>
+                  </div>
+                </div>
+                <span>19°</span>
               </div>
             </div>
           </div>
