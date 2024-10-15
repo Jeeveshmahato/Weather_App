@@ -19,7 +19,20 @@ const roboto = Roboto({
 });
 
 export default function Home() {
-  const [weatherData, setWeatherData] = useState<any>();
+  interface WeatherData {
+    main: {
+      temp: number;
+      temp_min: number;
+      temp_max: number;
+      humidity: number;
+    };
+    weather: { description: string }[];
+    clouds: { all: number };
+    wind: { speed: number };
+    name: string;
+  }
+
+  const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
   const [cityName, setCityName] = useState<string>("");
   const [searchCity, setSearchCity] = useState<string>("");
 
@@ -149,6 +162,12 @@ export default function Home() {
     // Cleanup the timer when the component is unmounted
     return () => clearInterval(timer);
   }, []);
+
+  useEffect(() => {
+    if (error) {
+      alert(error);
+    }
+  }, [error]);
 
   return (
     <div
