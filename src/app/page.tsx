@@ -166,12 +166,12 @@ export default function Home() {
         <div className="flex flex-col justify-between h-full md:gap-[200px] gap-[100px] w-full lg:w-2/3">
           <div className=" flex justify-between">
             <Image
-              className="w-[90px] h-[47px] rounded-full object-cover"
+              className=" w-[38px] h-[20px] md:w-[90px] md:h-[47px] rounded-full object-cover"
               src={logo}
               alt="Weather App Logo"
             />
             {/* Search Bar */}
-            <div className="flex  lg:hidden justify-between items-center border-b border-white pb-4">
+            <div className="flex  lg:hidden justify-between items-center border-b border-white mb-0 md:pb-4">
               <input
                 type="text"
                 value={searchCity}
@@ -181,7 +181,7 @@ export default function Home() {
               />
               <Image
               onClick={searchByCityName}
-              className="material-icons text-white ml-4 w-[28px] h-[28px] cursor-pointer"
+              className="material-icons text-white ml-4 w-[12px] h-[12px] md:w-[28px] md:h-[28px] cursor-pointer"
               src={Search}
               alt="search "
             />
