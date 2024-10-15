@@ -14,8 +14,8 @@ import outline from "../assets/outline.png";
 import Search from "../assets/search.png";
 // Load Roboto font with weights
 const roboto = Roboto({
-  weight: ["400", "700"], // Regular and Bold
-  subsets: ["latin"], // Ensures proper character set for Latin languages
+  weight: ["400", "700"], 
+  subsets: ["latin"], 
 });
 
 export default function Home() {
@@ -49,7 +49,7 @@ export default function Home() {
         (position) => {
           setLatitude(position.coords.latitude);
           setLongitude(position.coords.longitude);
-          setError(null); // Clear any previous errors
+          setError(null); 
         },
         () => {
           setError("Unable to retrieve your location");
@@ -101,7 +101,6 @@ export default function Home() {
   }, []);
 
   // current data and time
-  // Function to add leading zero to single digit numbers
   const addLeadingZero = (num: number): string =>
     num < 10 ? `0${num}` : `${num}`;
 
